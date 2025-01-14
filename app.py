@@ -52,11 +52,22 @@ def upload_file():
         elif file_type == 'jpg':
             return jpg_to_pdf(file_path, file.filename) # convert jpg to pdf 
         else:
-            os.remove(file_path)  # Clean up
+            safe_remove(file_path)  # Clean up
             return jsonify({"error": f"Conversion for {file_type.upper()} is not implemented."}), 400
     except Exception as e:
-        os.remove(file_path)  # Clean up in case of error
+        safe_remove(file_path)  # Clean up in case of error
         return jsonify({"error": str(e)}), 500
+
+def safe_remove(file_path):
+    """
+    Safe file removal: Check if the file exists before attempting to delete it.
+    """
+    print(f"Attempting to remove file at: {file_path}")
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        print(f"Successfully removed {file_path}")
+    else:
+        print(f"File {file_path} not found for removal.")
 
 def word_to_pdf(file_path, filename):
     """
@@ -80,10 +91,10 @@ def word_to_pdf(file_path, filename):
         
         pdf.output(pdf_path)
 
-        os.remove(file_path)  # Clean up original file
+        safe_remove(file_path)  # Clean up original file
         return jsonify({"message": "Word to PDF conversion successful!", "path": pdf_path}), 200
     except Exception as e:
-        os.remove(file_path)
+        safe_remove(file_path)
         return jsonify({"error": str(e)}), 500
 
 def excel_to_pdf(file_path, filename):
@@ -102,10 +113,10 @@ def excel_to_pdf(file_path, filename):
         # pdf = FPDF()
         # ... fill in Excel content to PDF similarly to Word-to-PDF...
         
-        os.remove(file_path)  # Clean up original file
+        safe_remove(file_path)  # Clean up original file
         return jsonify({"message": "Excel to PDF conversion successful!", "path": pdf_path}), 200
     except Exception as e:
-        os.remove(file_path)
+        safe_remove(file_path)
         return jsonify({"error": str(e)}), 500
 
 def ppt_to_pdf(file_path, filename):
@@ -120,10 +131,10 @@ def ppt_to_pdf(file_path, filename):
         # Save or convert it into PDF (Note: pptx to PDF requires external tools like unoconv or LibreOffice)
         # Here is a simple placeholder:
         
-        os.remove(file_path)  # Clean up original file
+        safe_remove(file_path)  # Clean up original file
         return jsonify({"message": "PPT to PDF conversion successful!", "path": pdf_path}), 200
     except Exception as e:
-        os.remove(file_path)
+        safe_remove(file_path)
         return jsonify({"error": str(e)}), 500
 
 def jpg_to_pdf(file_path, filename):
@@ -138,10 +149,10 @@ def jpg_to_pdf(file_path, filename):
         image = Image.open(file_path)
         image.convert('RGB').save(pdf_path, "PDF")
 
-        os.remove(file_path)  # Clean up original file
+        safe_remove(file_path)  # Clean up original file
         return jsonify({"message": "JPG to PDF conversion successful!", "path": pdf_path}), 200
     except Exception as e:
-        os.remove(file_path)
+        safe_remove(file_path)
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
